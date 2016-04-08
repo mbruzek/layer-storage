@@ -1,0 +1,11 @@
+includes: ['layer:basic']
+repo: https://github.com/mbruzek/layer-storage.git
+defines:
+  storage-driver:
+    type: string
+    enum: ['overlay', 'aufs', 'btrfs', 'zfs']
+    default: zfs
+    description: |
+      This is a build time option for the storage driver to handle the devices
+      available to the charm. Only the 'overlay', 'aufs', 'btrfs', and 'zfs'
+      are valid at this time.
