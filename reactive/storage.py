@@ -21,6 +21,7 @@ from zfs import ZfsPool
 
 from charms import layer
 
+
 @hook('disk-pool-storage-attached')
 def storage_attached():
     '''Run every time storage is attached to the charm.'''
@@ -75,7 +76,9 @@ def handle_zfs_pool():
     unmounted_devices = get_unmounted_devices()
     # Since we are using raidz you must add devices in multiples of 3.
     if len(unmounted_devices) % 3 == 0:
-        zfs = ZfsPool('juju-zfs-pool')
+        mount_path = get_mount_path()
+
+        zfs = ZfsPool(mount_path, 'juju-zfs-pool', True)
         zfs.add(unmounted_devices)
         add_mounted_devices(unmounted_devices)
     remove_state('disk-pool-storage-attached')
@@ -103,10 +106,12 @@ def get_storage_driver():
     layer_options = layer.options('storage')
     return layer_options['storage-driver']
 
+
 def get_mount_path():
     '''Get the storage-driver for this layer.'''
     layer_options = layer.options('storage')
     return layer_options['mount-path']
+
 
 def get_devices():
     '''Get a list of storage devices.'''
