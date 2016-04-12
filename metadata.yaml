@@ -1,16 +1,5 @@
-name: storage
-summary: A layer that uses the storage feature of Juju.
-maintainers:
-    - Matt Bruzek <matthew.bruzek@canonical.com>
-    - Charles Butler <charles.butler@canonical.com>
-description: |
-  A minimalist charm layer that uses Juju storage.
-tags:
-  - infrastructure
-subordinate: false
 storage:
   disk-pool:
     type: block
     multiple:
       range: 0-
-    
