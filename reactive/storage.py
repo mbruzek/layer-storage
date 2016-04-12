@@ -43,7 +43,7 @@ def install_storage_tools():
         set_state('btrfs-tools-installed')
     if storage_driver == 'zfs':
         lsb_release = host.lsb_release()
-        if lsb_release and lsb_release['Codename'] == 'trusty':
+        if lsb_release and lsb_release['DISTRIB_CODENAME'] == 'trusty':
             configure_sources(update=True,
                               source_var='ppa:zfs-native/stable')
             pkg_list = ['debootstrap', 'spl-dkms', 'zfs-dkms', 'ubuntu-zfs']
