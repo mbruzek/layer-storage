@@ -68,7 +68,7 @@ class ZfsPool(StoragePool):
             check_call(split(cmd))
         else:
             # The command that creates a zfs pool without a mount point.
-            cmd = 'sudo zpool create {0} raidz '.format(self.pool_name)
+            cmd = 'sudo zpool create -f {0} raidz '.format(self.pool_name)
             cmd += ' '.join(devices)
             print(cmd)
             check_call(split(cmd))
