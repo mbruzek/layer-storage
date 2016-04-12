@@ -8,7 +8,8 @@ from charmhelpers.core.hookenv import status_set
 from charmhelpers.core.hookenv import storage_get
 from charmhelpers.core.hookenv import storage_list
 from charmhelpers.fetch import apt_install
-from charmhelpers.fetch import configure_sources
+from charmhelpers.fetch import apt_update
+from charmhelpers.fetch import add_source
 
 
 from charms.reactive import set_state
@@ -42,9 +43,9 @@ def install_storage_tools():
         set_state('btrfs-tools-installed')
     if storage_driver == 'zfs':
         lsb_release = host.lsb_release()
-        if lsb_release and lsb_release['Codename'] == 'trusty':
-            configure_sources(update=True,
-                              source_var='ppa:zfs-native/stable')
+        if lsb_release and lsb_release['DISTRIB_CODENAME'] == 'trusty':
+            add_source('ppa:zfs-native/stable')
+            apt_update(fatal=True)
             pkg_list = ['debootstrap', 'spl-dkms', 'zfs-dkms', 'ubuntu-zfs']
         else:
             pkg_list = ['zfsutils-linux']
