@@ -74,8 +74,9 @@ def handle_btrfs_pool():
 def handle_zfs_pool():
     '''The zfs tools are installed, use the zfs tools.'''
     unmounted_devices = get_unmounted_devices()
+    number_of_devices = len(unmounted_devices)
     # Since we are using raidz you must add devices in multiples of 3.
-    if len(unmounted_devices) % 3 == 0:
+    if number_of_devices > 0 and number_of_devices % 3 == 0:
         zfs = ZfsPool('juju-zfs-pool')
         zfs.add(unmounted_devices)
         add_mounted_devices(unmounted_devices)
