@@ -11,7 +11,7 @@ from charmhelpers.fetch import apt_install
 from charmhelpers.fetch import apt_update
 from charmhelpers.fetch import add_source
 
-
+from charms.reactive import remove_state
 from charms.reactive import set_state
 from charms.reactive import hook
 from charms.reactive import when
@@ -76,9 +76,7 @@ def handle_zfs_pool():
     unmounted_devices = get_unmounted_devices()
     # Since we are using raidz you must add devices in multiples of 3.
     if len(unmounted_devices) % 3 == 0:
-        mount_path = get_mount_path()
-
-        zfs = ZfsPool(mount_path, 'juju-zfs-pool', True)
+        zfs = ZfsPool('juju-zfs-pool')
         zfs.add(unmounted_devices)
         add_mounted_devices(unmounted_devices)
     remove_state('disk-pool-storage-attached')
