@@ -57,7 +57,7 @@ def install_storage_tools():
 @when('disk-pool-storage-attached', 'btrfs-tools-installed')
 def handle_btrfs_pool():
     '''The btrfs tools are installed, use the btfs tools.'''
-    mount_path = '/var/lib/docker'
+    mount_path = get_mount_path()
     devices = get_devices()
     try:
         bfs = BtrfsPool(mount_path)
@@ -103,6 +103,10 @@ def get_storage_driver():
     layer_options = layer.options('storage')
     return layer_options['storage-driver']
 
+def get_mount_path():
+    '''Get the storage-driver for this layer.'''
+    layer_options = layer.options('storage')
+    return layer_options['mount-path']
 
 def get_devices():
     '''Get a list of storage devices.'''
