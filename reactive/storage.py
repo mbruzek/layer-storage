@@ -1,12 +1,15 @@
 import os
 from subprocess import check_call
 
+from charmhelpers.core import host
 from charmhelpers.core import unitdata
 from charmhelpers.core.hookenv import config
 from charmhelpers.core.hookenv import status_set
 from charmhelpers.core.hookenv import storage_get
 from charmhelpers.core.hookenv import storage_list
 from charmhelpers.fetch import apt_install
+from charmhelpers.fetch import configure_sources
+
 
 from charms.reactive import set_state
 from charms.reactive import hook
@@ -39,7 +42,13 @@ def install_storage_tools():
         apt_install(pkg_list, fatal=True)
         set_state('btrfs-tools-installed')
     if storage_driver == 'zfs':
-        pkg_list = ['zfsutils-linux']
+        lsb_release = host.lsb_release()
+        if lsb_release and lsb_release['Codename'] == 'trusty':
+            configure_sources(update=True,
+                              source_var='ppa:zfs-native/stable')
+            pkg_list = ['debootstrap', 'spl-dkms', 'zfs-dkms', 'ubuntu-zfs']
+        else:
+            pkg_list = ['zfsutils-linux']
         apt_install(pkg_list, fatal=True)
         set_state('zfs-tools-installed')
     set_state('disk-pool-tools-installed')
