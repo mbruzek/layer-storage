@@ -31,10 +31,11 @@ class ZfsPool(StoragePool):
         # The mount point must be an absolute path.
         pool.mountpoint = os.path.abspath(mount_point)
         pool.devices = devices
-
+        force_flag = '-f' if force else ''
         # The command that creates a zfs disk pool.
-        cmd = 'sudo zpool create -m -f {0} {1} raidz '.format(pool.mountpoint,
-                                                              pool.pool_name)
+        cmd = 'sudo zpool create -m {0} {1} {2} raidz '.format(force_flag,
+                                                               pool.mountpoint,
+                                                               pool.pool_name)
         cmd += ' '.join(pool.devices)
         print(cmd)
         # Run the command.
