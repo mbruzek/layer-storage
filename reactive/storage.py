@@ -16,7 +16,6 @@ from charms.reactive import hook
 from charms.reactive import when
 from charms.reactive import when_not
 
-from btrfs import BtrfsPool
 from zfs import ZfsPool
 
 from charms import layer
@@ -100,7 +99,7 @@ def add_mounted_devices(devices):
 
 def get_storage_driver():
     '''Get the storage-driver for this layer.'''
-    layer_options = layer.options('docker')
+    layer_options = layer.options('storage')
     return layer_options['storage-driver']
 
 
