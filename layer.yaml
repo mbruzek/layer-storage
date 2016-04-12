@@ -9,3 +9,9 @@ defines:
       This is a build time option for the storage driver to handle the devices
       available to the charm. Only the 'overlay', 'aufs', 'btrfs', and 'zfs'
       are valid at this time.
+  mount-path:
+    type: string
+    default: '/mnt/storage'
+    description: |
+      Default path to mount the storage volume(s) backended by
+      storage_driver
