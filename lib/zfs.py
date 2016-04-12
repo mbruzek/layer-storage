@@ -4,7 +4,7 @@ from shlex import split
 from subprocess import check_call
 from subprocess import check_output
 
-from storagepool import StoragePool
+from storage_pool import StoragePool
 
 
 class ZfsPool(StoragePool):
