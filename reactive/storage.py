@@ -83,9 +83,9 @@ def handle_zfs_pool():
 
 def get_unmounted_devices():
     '''Return a list of devices that are not yet mounted.'''
-    device_set = {get_devices()}
+    device_set = set(get_devices())
     kv_store = unitdata.kv()
-    mounted_set = {kv_store.get('mounted.devices') or []}
+    mounted_set = set(kv_store.get('mounted.devices') or [])
     return list(device_set - mounted_set)
 
 
