@@ -33,8 +33,8 @@ class ZfsPool(StoragePool):
         pool.devices = devices
 
         # The command that creates a zfs disk pool.
-        cmd = 'sudo zpool create -m {0} {1} raidz '.format(pool.mountpoint,
-                                                           pool.pool_name)
+        cmd = 'sudo zpool create -m -f {0} {1} raidz '.format(pool.mountpoint,
+                                                              pool.pool_name)
         cmd += ' '.join(pool.devices)
         print(cmd)
         # Run the command.
