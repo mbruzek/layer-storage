@@ -43,10 +43,13 @@ def install_storage_tools():
         apt_install(pkg_list, fatal=True)
         set_state('btrfs-tools-installed')
     if storage_driver == 'zfs':
+        # Get the lsb_release information as a dictionary.
         lsb_release = host.lsb_release()
+        # Figure out the codename for this cloud instance.
         if lsb_release and lsb_release['DISTRIB_CODENAME'] == 'trusty':
             add_source('ppa:zfs-native/stable')
             apt_update(fatal=True)
+            # The zfs package names are different in trusty
             pkg_list = ['debootstrap', 'spl-dkms', 'zfs-dkms', 'ubuntu-zfs']
         else:
             pkg_list = ['zfsutils-linux']
@@ -75,10 +78,13 @@ def handle_zfs_pool():
     '''The zfs tools are installed, use the zfs tools.'''
     unmounted_devices = get_unmounted_devices()
     number_of_devices = len(unmounted_devices)
+    mount_path = get_mount_path()
     # Since we are using raidz you must add devices in multiples of 3.
     if number_of_devices > 0 and number_of_devices % 3 == 0:
-        zfs = ZfsPool('juju-zfs-pool')
+        zfs = ZfsPool(mount_path)
+        # Mount the devices in zfs.
         zfs.add(unmounted_devices)
+        # Add the devices to the charm k/v store so we don't mount them again.
         add_mounted_devices(unmounted_devices)
     remove_state('disk-pool-storage-attached')
 
