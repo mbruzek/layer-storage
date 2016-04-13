@@ -1,0 +1,7 @@
+.tox
+__pycache__
+.cache
+*.pyc
+.coverage
+.unit-state.db
+

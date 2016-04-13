@@ -1,14 +1,19 @@
 import os
 
 from shlex import split
+from subprocess import call
 from subprocess import check_call
 from subprocess import check_output
 
-from storagepool import StoragePool
+from storage_pool import StoragePool
 
 
 class ZfsPool(StoragePool):
-    '''The class to create a zfs storage pool.'''
+    '''The class to create raidz zfs storage pools from a list of devices.
+    The raidz group is a variation on RAID-5 that allows for better
+    distribution of parity and eliminates the "RAID-5 write hole" (in
+    which data and parity become inconsistent after a power loss). Data
+    and parity is striped across all disks within a raidz group.'''
 
     # The devices should be a list of strings.
     devices = []
@@ -16,36 +21,32 @@ class ZfsPool(StoragePool):
     # characters as well as underscore ("_"), dash ("-"), period ("."), colon
     # (":"), and space (" "). The pool names "mirror", "raidz", "spare" and
     # "log" are reserved, as are names beginning with  the  pattern  "c[0-9]".
-    pool_name = 'zfs-storage-pool'
+    pool_name = ''
     # The mount point has to be an abolute path.
     mountpoint = ''
 
-    def __init__(self, reference):
-        '''Return an ZfsPool object using a specified pool name.'''
-        self.pool_name = reference
+    def __init__(self, mount_point, name='juju-zfs-pool'):
+        '''Return an ZfsPool object using the specified mount point. Notice
+        this does not actually create the zfs pool.'''
+        # TODO validate/normalize the pool name before proceeding.
+        self.pool_name = name
+        # The mount point must be an absolute path.
+        self.mountpoint = os.path.abspath(mount_point)
 
     @classmethod
     def create(cls, mount_point, devices, force=False):
-        '''Return a new StoragePool object of devices at the mount point.'''
-        pool = cls('zfs-storage-pool')
-        # The mount point must be an absolute path.
-        pool.mountpoint = os.path.abspath(mount_point)
-        pool.devices = devices
-
-        # The command that creates a zfs disk pool.
-        cmd = 'sudo zpool create -m {0} {1} raidz '.format(pool.mountpoint,
-                                                           pool.pool_name)
-        cmd += ' '.join(pool.devices)
-        print(cmd)
-        # Run the command.
-        output = check_output(split(cmd))
+        '''Return a new ZfsPool object wiith the specified mount point and
+        list of devices. This method actually creates the raidz zfs pool if
+        it does not already exist.'''
+        pool = cls(mount_point)
+        pool.add(devices, force)
         return pool
 
     @property
     def size(self):
-        '''Return a string tuple of used and total size of the storage pool.'''
+        '''Return a string tuple of used and total size of the zfs pool.'''
         # Create a command to get the details of the storage pool (no header).
-        cmd = 'sudo zfs list -H ' + self.pool_name
+        cmd = 'sudo zfs list -H {0}'.format(self.pool_name)
         output = check_output(split(cmd))
         if output:
             # NAME           USED  AVAIL  REFER  MOUNTPOINT
@@ -55,35 +56,34 @@ class ZfsPool(StoragePool):
         # Return a tuple of used and available for this pool.
         return self.used, self.total
 
-    def add(self, devices):
-        '''Add devices to the zfs storage pool. This operation can fail if
-        the number of disks does not match the origin raidz pool.'''
-        # The self.mount_point will only exist if we created the zfs pool.
-        if self.mountpoint:
-            # The command that adds a device to a zfs pool.
-            cmd = 'sudo zpool add {0} raidz '.format(self.pool_name)
+    def add(self, devices, force=False):
+        '''Add devices to a raidz zfs storage pool. This operation can fail if
+        the number of disks does not match the original raidz pool.'''
+        force_flag = '-f' if force else ''
+        # When the pool exists, add devices to the pool.
+        if ZfsPool.exists(self.pool_name):
+            # The command that adds a device to a raidz zfs pool.
+            cmd = 'sudo zpool add {0} {1} raidz '.format(force_flag,
+                                                         self.pool_name)
             cmd += ' '.join(devices)
             print(cmd)
             check_call(split(cmd))
-        else:
-            # The command that creates a zfs pool without a mount point.
-            cmd = 'sudo zpool create {0} raidz '.format(self.pool_name)
-            cmd += ' '.join(devices)
-            print(cmd)
-            check_call(split(cmd))
-            self.mountpoint = self.mount_point(self.pool_name)
-        # Append the devices to the device list.
-        if self.devices:
             self.devices.append(devices)
-        else:
+        else:  # The pool does not yet exist, so we must create a new pool.
+            # The command that creates a new raidz zfs disk pool.
+            cmd = 'sudo zpool create {0} -m {1} {2} raidz '.format(
+                    force_flag,
+                    self.mountpoint,
+                    self.pool_name)
+            cmd += ' '.join(devices)
+            print(cmd)
+            output = check_output(split(cmd))
             self.devices = devices
 
-    def mount_point(self, name):
-        '''Return the mount point for the zfs pool name.'''
-        # The command to get the mount_point property from a zfs pool.
-        cmd = 'sudo zfs get -H mountpoint {0}'.format(name)
-        output = check_output(split(cmd))
-        if output:
-            # NAME          PROPERTY    VALUE          SOURCE
-            # mbruzek-pool  mountpoint  /mbruzek-pool  default
-            return output.split()[2]
+    @staticmethod
+    def exists(name):
+        '''Return True if the specified zfs pool exists, False otherwise.'''
+        # The command to list the pool by name.
+        cmd = 'sudo zfs list -H {0}'.format(name)
+        return_code = call(split(cmd))
+        return return_code == 0
