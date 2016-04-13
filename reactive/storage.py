@@ -53,6 +53,7 @@ def install_storage_tools():
             pkg_list = ['debootstrap', 'spl-dkms', 'zfs-dkms', 'ubuntu-zfs']
         else:
             pkg_list = ['zfsutils-linux']
+        # Install the packages and exit if that operation fails.
         apt_install(pkg_list, fatal=True)
         set_state('zfs-tools-installed')
     set_state('disk-pool-tools-installed')
@@ -83,26 +84,31 @@ def handle_zfs_pool():
     if number_of_devices > 0 and number_of_devices % 3 == 0:
         zfs = ZfsPool(mount_path)
         # Mount the devices in zfs.
-        zfs.add(unmounted_devices)
+        zfs.add(unmounted_devices, True)
         # Add the devices to the charm k/v store so we don't mount them again.
         add_mounted_devices(unmounted_devices)
+    # Remove the disk-pool-storage-attached state, as we have handled it.
     remove_state('disk-pool-storage-attached')
 
 
 def get_unmounted_devices():
     '''Return a list of devices that are not yet mounted.'''
+    # Get a set of the storage devices available.
     device_set = set(get_devices())
     kv_store = unitdata.kv()
     mounted_set = set(kv_store.get('mounted.devices') or [])
+    # Use sets here to do subtraction and deduplicate the entries.
     return list(device_set - mounted_set)
 
 
 def add_mounted_devices(devices):
     '''Add the list of devices to the charm key/value store for tracking.'''
+    # When devices is not a list, put it in a list.
     if not isinstance(devices, list):
         devices = [devices]
     kv_store = unitdata.kv()
     mounted_devices = kv_store.get('mounted.devices') or []
+    # Save the mounted devices in the charm k/v store.
     kv_store.set('mounted.devices', mounted_devices + devices)
 
 
