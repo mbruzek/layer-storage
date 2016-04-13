@@ -21,13 +21,15 @@ class ZfsPool(StoragePool):
     # characters as well as underscore ("_"), dash ("-"), period ("."), colon
     # (":"), and space (" "). The pool names "mirror", "raidz", "spare" and
     # "log" are reserved, as are names beginning with  the  pattern  "c[0-9]".
-    pool_name = 'juju-zfs-pool'
+    pool_name = ''
     # The mount point has to be an abolute path.
     mountpoint = ''
 
-    def __init__(self, mount_point):
+    def __init__(self, mount_point, name='juju-zfs-pool'):
         '''Return an ZfsPool object using the specified mount point. Notice
         this does not actually create the zfs pool.'''
+        # TODO validate/normalize the pool name before proceeding.
+        self.pool_name = name
         # The mount point must be an absolute path.
         self.mountpoint = os.path.abspath(mount_point)
 
