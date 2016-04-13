@@ -1,10 +1,5 @@
-import os
-from subprocess import check_call
-
 from charmhelpers.core import host
 from charmhelpers.core import unitdata
-from charmhelpers.core.hookenv import config
-from charmhelpers.core.hookenv import status_set
 from charmhelpers.core.hookenv import storage_get
 from charmhelpers.core.hookenv import storage_list
 from charmhelpers.fetch import apt_install
@@ -18,6 +13,7 @@ from charms.reactive import when
 from charms.reactive import when_not
 
 from zfs import ZfsPool
+from btrfs import BtrfsPool
 
 from charms import layer
 
