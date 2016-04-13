@@ -33,8 +33,9 @@ class ZfsPool(StoragePool):
 
     @classmethod
     def create(cls, mount_point, devices, force=False):
-        '''Return a new ZfsPool object of devices at the mount point. This
-        method actually creates the raidz zfs pool.'''
+        '''Return a new ZfsPool object wiith the specified mount point and
+        list of devices. This method actually creates the raidz zfs pool if
+        it does not already exist.'''
         pool = cls(mount_point)
         pool.add(devices, force)
         return pool
@@ -58,7 +59,7 @@ class ZfsPool(StoragePool):
         the number of disks does not match the original raidz pool.'''
         force_flag = '-f' if force else ''
         # When the pool exists, add devices to the pool.
-        if zfs_pool_exists(self.pool_name):
+        if ZfsPool.exists(self.pool_name):
             # The command that adds a device to a raidz zfs pool.
             cmd = 'sudo zpool add {0} {1} raidz '.format(force_flag,
                                                          self.pool_name)
@@ -78,7 +79,7 @@ class ZfsPool(StoragePool):
             self.devices = devices
 
     @staticmethod
-    def zfs_pool_exists(self, name):
+    def exists(name):
         '''Return True if the specified zfs pool exists, False otherwise.'''
         # The command to list the pool by name.
         cmd = 'sudo zfs list -H {0}'.format(name)
