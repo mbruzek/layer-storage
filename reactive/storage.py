@@ -58,15 +58,15 @@ def install_storage_tools():
 @when('disk-pool-storage-attached', 'btrfs-tools-installed')
 def handle_btrfs_pool():
     '''The btrfs tools are installed, use the btfs tools.'''
-    mount_path = get_mount_path()
+    mount_point = get_mount_point()
     devices = get_devices()
     try:
-        bfs = BtrfsPool(mount_path)
+        bfs = BtrfsPool(mount_point)
         for dev in devices:
             bfs.add(dev)
     except OSError:
-        bfs = BtrfsPool.create(mountPoint=mount_path, devices=devices)
-        bfs.mount(devices[0], mount_path)
+        bfs = BtrfsPool.create(mountPoint=mount_point, devices=devices)
+        bfs.mount(devices[0], mount_point)
     remove_state('disk-pool-storage-attached')
 
 
@@ -75,10 +75,10 @@ def handle_zfs_pool():
     '''The zfs tools are installed, use the zfs tools.'''
     unmounted_devices = get_unmounted_devices()
     number_of_devices = len(unmounted_devices)
-    mount_path = get_mount_path()
+    mount_point = get_mount_point()
     # Since we are using raidz you must add devices in multiples of 3.
     if number_of_devices > 0 and number_of_devices % 3 == 0:
-        zfs = ZfsPool(mount_path)
+        zfs = ZfsPool(mount_point)
         # Mount the devices in zfs.
         zfs.add(unmounted_devices, True)
         # Add the devices to the charm k/v store so we don't mount them again.
@@ -114,10 +114,10 @@ def get_storage_driver():
     return layer_options['storage-driver']
 
 
-def get_mount_path():
+def get_mount_point():
     '''Get the storage-driver for this layer.'''
     layer_options = layer.options('storage')
-    return layer_options['mount-path']
+    return layer_options['mount-point']
 
 
 def get_devices():

@@ -20,11 +20,11 @@ class TestZfs(unittest.TestCase):
         self.devices = []
         print('Creating files in {0}'.format(self.directory))
         # The command to create multiple images to mount zfs.
-        image = 'dd if=/dev/zero of={0} bs=1M count=150'
+        image = 'dd if=/dev/zero of={0} bs=1024 count=150'
         for a in range(6):
             output_file = '{0}/zfs{1}.img'.format(self.directory, str(a))
             print(image.format(output_file))
-            # Create the files
+            # Create the files to use for storage devices.
             check_call(split(image.format(output_file)))
             self.devices.append(output_file)
         print('File creation complete.')
