@@ -1,6 +1,5 @@
 import os
 import shutil
-import sys
 import tempfile
 import unittest
 
@@ -19,8 +18,8 @@ class TestZfs(unittest.TestCase):
         self.mount_point = tempfile.mkdtemp()
         self.devices = []
         print('Creating files in {0}'.format(self.directory))
-        # The command to create multiple images to mount zfs.
-        image = 'dd if=/dev/zero of={0} bs=1024 count=150'
+        # The command to create multiple images to mount zfs minimum of 64MB.
+        image = 'dd if=/dev/zero of={0} bs=1024 count=65536'
         for a in range(6):
             output_file = '{0}/zfs{1}.img'.format(self.directory, str(a))
             print(image.format(output_file))
@@ -45,7 +44,7 @@ class TestZfs(unittest.TestCase):
         destroy = 'sudo zpool destroy -f {0}'.format(pool.pool_name)
         check_call(split(destroy))
         print('Pool {0} destroyed.'.format(pool.pool_name))
-        assert pool.pool_name in output.split()[0], 'Pool name not in zfs pool listing.'
+        assert pool.pool_name in output.split()[0], 'Pool name not in zfs pool listing.'  # noqa
 
     def test_create(self):
         '''Test the create path to create a ZfsPool.'''
@@ -60,7 +59,7 @@ class TestZfs(unittest.TestCase):
         destroy = 'sudo zpool destroy -f {0}'.format(pool.pool_name)
         check_call(split(destroy))
         print('Pool {0} destroyed.'.format(pool.pool_name))
-        assert pool.pool_name in output.split()[0], 'Pool name not in zfs pool listing.'
+        assert pool.pool_name in output.split()[0], 'Pool name not in zfs pool listing.'  # noqa
 
     def tearDown(self):
         '''Operations run once at the end of the tests.'''
