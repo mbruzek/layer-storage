@@ -18,7 +18,7 @@ class TestZfs(unittest.TestCase):
         self.mount_point = tempfile.mkdtemp()
         self.devices = []
         print('Creating files in {0}'.format(self.directory))
-        # The command to create multiple images to mount zfs minimu 64MB.
+        # The command to create multiple images to mount zfs minimum of 64MB.
         image = 'dd if=/dev/zero of={0} bs=1024 count=65536'
         for a in range(6):
             output_file = '{0}/zfs{1}.img'.format(self.directory, str(a))
