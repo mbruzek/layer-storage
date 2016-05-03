@@ -49,10 +49,11 @@ class ZfsPool(StoragePool):
         cmd = 'sudo zfs list -H {0}'.format(self.pool_name)
         output = check_output(split(cmd))
         if output:
-            # NAME           USED  AVAIL  REFER  MOUNTPOINT
-            # mbruzek-pool  62.5K   688M    19K  /mbruzek-pool
-            self.used = str(line.split()[1])
-            self.total = str(line.split()[2])
+            line = output.split()
+            # NAME    USED    AVAIL   REFER   MOUNTPOINT
+            # line[0] line[1] line[2] line[3] line[4]
+            self.used = str(line[1])
+            self.total = str(line[2])
         # Return a tuple of used and available for this pool.
         return self.used, self.total
 
