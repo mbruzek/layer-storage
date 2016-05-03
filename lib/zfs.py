@@ -78,7 +78,7 @@ class ZfsPool(StoragePool):
                     self.pool_name)
             cmd += ' '.join(devices)
             print(cmd)
-            output = check_output(split(cmd))
+            check_call(split(cmd))
             self.devices = devices
 
     @staticmethod
