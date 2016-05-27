@@ -10,7 +10,6 @@ class TestZfsPool(unittest.TestCase):
 
     @patch.object(ZfsPool, 'exists', MagicMock(return_value=False))
     def testCreate(self):
-        from zfs import ZfsPool
         with patch('zfs.check_call') as zcc:
             ZfsPool.create('/tmp', ['/dev/sdx1', '/dev/sdy1', '/dev/sdz1'])
             zcc.assert_called_with([
@@ -83,7 +82,6 @@ class TestZfsPool(unittest.TestCase):
 
 
     def testSize(self):
-        from zfs import ZfsPool
         with patch('zfs.check_output') as zco:
             pool = ZfsPool('/home/zfs')
             pool.size
